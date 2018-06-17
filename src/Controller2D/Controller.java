@@ -26,7 +26,9 @@ import AirLegislation.FlightList;
 import FlightLive.FlightLive;
 import Geography.Pays;
 import Geography.Ville;
+import Tool.Fx3DGroup;
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -68,15 +70,18 @@ public class Controller implements Initializable{
 	
 	private SubScene aeroports = null;
 	Group group2 = null;
-	ArrayList<Group> listGroupAero = new ArrayList<Group>();
-	ArrayList<Group> listGroupAeroA = new ArrayList<Group>();
+	private ArrayList<Group> listGroupAero = new ArrayList<Group>();
+	private ArrayList<Group> listGroupAeroA = new ArrayList<Group>();
+	
+	//private ArrayList<Group> listGroupAirCraftTotal = new ArrayList<Group>();
+	private ArrayList<Group> listGroupAirCraft = new ArrayList<Group>();
+	private Group groupAirCraft = null;
 	
 	private ArrayList<Aeroport> tempDAero = new ArrayList<Aeroport>();
 	private ArrayList<Aeroport> tempAAero = new ArrayList<Aeroport>();
 	
 	private ArrayList<Ville> tempDVille = new ArrayList<Ville>();
 	private ArrayList<Ville> tempAVille = new ArrayList<Ville>();
-	
 	
 	/*
 	private ArrayList<Pays> tempDPays = new ArrayList<Pays>();
@@ -212,7 +217,8 @@ public class Controller implements Initializable{
         controlItemAero(FL);
         controlItemPane(FL);
         drawAero(FL,root3D);
-        affDetailsAvion(FL);
+        affDetailsAvion(FL, root3D);
+        //drawPlane(root3D);
         //pane3D.getChildren().add(root1);
 	}
 	
@@ -310,7 +316,7 @@ public class Controller implements Initializable{
 			}*/
 			
 			try {
-				addListView(FL);
+				addListView(FL, root);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -483,7 +489,7 @@ public class Controller implements Initializable{
 		}
     }
     
-    private void addListView(FlightLive FL) throws InterruptedException{
+    private void addListView(FlightLive FL, Group parent) throws InterruptedException{
     	ArrayList<Avion> list = new ArrayList<Avion>();
     	ArrayList<Avion> depList = new ArrayList<Avion>();
     	ArrayList<Avion> arrList = new ArrayList<Avion>();
@@ -530,6 +536,7 @@ public class Controller implements Initializable{
 	  				mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES); //Ignorer les champs inutiles
 	  				FlightList flightList =FL.getFlights() ; //Créer l'objet de plus haut niveau dans le dictionnaire json
 	  				flightList = mapper.readValue(response.getResponseBody(), FlightList.class);
+	  				ArrayList<Avion> listAc = new ArrayList<Avion>();
 	  				for(Avion a : flightList.getAcList()){
 	  					//System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 1");
 	
@@ -546,12 +553,21 @@ public class Controller implements Initializable{
 	  							
 	  							//System.out.println(sb.toString());
 	  						//}
-	  						
+	  						//drawPlane(a, parent);
+	  							
 	  						ObservableList<String> listViewItems = FXCollections.observableArrayList(rslt);
 	  						listAvions.setItems(listViewItems);
 	  				    }
 	  					
 	  				}
+	  				
+	  				System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+	  				Platform.runLater(new Runnable() {
+		                 @Override public void run() {
+		                	 drawPlanes(listAc, parent);
+		                 }
+		             });
+  	  				
 	  				/*
 	  				ObservableList<Avion> tableViewItems = FXCollections.observableArrayList(flightList.getAcList());
 					listColumnAvions.setItems(tableViewItems);
@@ -601,6 +617,7 @@ public class Controller implements Initializable{
   	  				mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES); //Ignorer les champs inutiles
   	  				FlightList flightList =FL.getFlights() ; //Créer l'objet de plus haut niveau dans le dictionnaire json
   	  				flightList = mapper.readValue(response.getResponseBody(), FlightList.class);
+  	  				ArrayList<Avion> listAc = new ArrayList<Avion>();
   	  				for(Avion a : flightList.getAcList()){
   	  					//System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 1");
   	
@@ -620,12 +637,18 @@ public class Controller implements Initializable{
   	  					
   	  						ObservableList<String> listViewItems = FXCollections.observableArrayList(rslt);
   	  						listAvions.setItems(listViewItems);
-  	  						
-  	  						
-	  						 
+  	  						listAc.add(a); 
   	  				    }
   	  					
   	  				}
+  	  				
+  	  				System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+	  	  			Platform.runLater(new Runnable() {
+		                 @Override public void run() {
+		                	 drawPlanes(listAc, parent);
+		                 }
+		             });
+		  				
   	  				/*
   	  				ObservableList<Avion> tableViewItems = FXCollections.observableArrayList(flightList.getAcList());
 					listColumnAvions.setItems(tableViewItems);	
@@ -677,6 +700,7 @@ public class Controller implements Initializable{
   	  				mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES); //Ignorer les champs inutiles
   	  				FlightList flightList =FL.getFlights() ; //Créer l'objet de plus haut niveau dans le dictionnaire json
   	  				flightList = mapper.readValue(response.getResponseBody(), FlightList.class);
+  	  				ArrayList<Avion> listAc = new ArrayList<Avion>();
   	  				for(Avion a : flightList.getAcList()){
   	  					//System.out.println(" ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 1");
   	
@@ -695,12 +719,16 @@ public class Controller implements Initializable{
   	  						
   	  						ObservableList<String> listViewItems = FXCollections.observableArrayList(rslt);
   	  						listAvions.setItems(listViewItems);
-  	  						
-  	  						
-  	  						
-  	  						 
+  	  						listAc.add(a);
   	  				    }
   	  				}
+  	  				System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+	  	  			Platform.runLater(new Runnable() {
+		                 @Override public void run() {
+		                	drawPlanes(listAc, parent);
+		                 }
+		             });
+  	  				
   	  				/*
   	  				ObservableList<Avion> tableViewItems = FXCollections.observableArrayList(flightList.getAcList());
 					listColumnAvions.setItems(tableViewItems);
@@ -718,7 +746,7 @@ public class Controller implements Initializable{
     	}
     }
 	
-	public void affDetailsAvion(FlightLive FL){
+	public void affDetailsAvion(FlightLive FL, Group root){
 		
 		listAvions.setOnMouseClicked(new EventHandler<MouseEvent>() {
 
@@ -747,7 +775,6 @@ public class Controller implements Initializable{
 					getRequest.execute(new AsyncCompletionHandler<Object>() {
 					@Override
 					public Object onCompleted(org.asynchttpclient.Response response) throws Exception {
-					// TODO Auto-generated method stub
 					//System.out.println(response.getResponseBody());
 			    	//Traiter la réponse
 					ObjectMapper mapper = new ObjectMapper();
@@ -756,6 +783,15 @@ public class Controller implements Initializable{
 					flightList = mapper.readValue(response.getResponseBody(), FlightList.class); //Créer l'objet de plus haut niveau dans le dictionnaire json
 					
 					detailAvion.setText(flightList.getAcArrayList().get(0).toString());
+					
+					final FlightList flightListF = flightList;
+					Platform.runLater(new Runnable() {
+		                 @Override public void run() {
+		                	 System.out.println("oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo");
+		                	 drawPlane(flightListF.getAcArrayList().get(0),root);
+		                 }
+		             });
+					
 			        return response;
 				}
 			});
@@ -765,6 +801,88 @@ public class Controller implements Initializable{
 		
 	}
 	
+	
+	public void drawPlane(Avion avion,Group parent) {
+		parent.getChildren().removeAll(this.listGroupAirCraft);
+		URL planeUrl = this.getClass().getResource("Plane/planeS.obj");
+		ObjModelImporter planeImporter = new ObjModelImporter();
+		planeImporter.read(planeUrl);
+		
+		MeshView[] planeMeshViews = planeImporter.getImport();
+		/*
+		Group plane = new Group(planeMeshViews);
+		parent.getChildren().add(plane);
+		*/
+		
+		Fx3DGroup planeScale = new Fx3DGroup(planeMeshViews);
+		Fx3DGroup planeOffset = new Fx3DGroup(planeScale);
+		Fx3DGroup plane = new Fx3DGroup(planeOffset);
+		
+		//float lat = 48.866667f;
+		//float lng = 2.333333f;
+		
+		Point3D location = geoCoordTo3dCoord(avion.Lat, avion.Long);
+		
+		plane.set3DTranslate(location.getX(), location.getY(), location.getZ()+0.016);
+		if(avion.TrkH) {
+			plane.set3DRotate(0, -avion.Trak+180, 0);
+		}
+		else {
+			plane.set3DRotate(0, avion.Trak+180, 0);
+		}
+		plane.set3DScale(0.04);
+		
+		//plane.set3DRotate(0, 0, 90);
+		
+		//this.listGroupAirCraft.add(plane);
+		if(this.groupAirCraft == null) {
+			this.groupAirCraft = plane;
+			parent.getChildren().add(this.groupAirCraft);
+		}
+		else {
+			parent.getChildren().remove(this.groupAirCraft);
+			this.groupAirCraft = plane;
+			parent.getChildren().add(this.groupAirCraft);
+		}
+	}
+	
+	public void drawPlanes(ArrayList<Avion> listAC, Group parent) {
+		if(listAC.size() > 0) {
+			for(Avion av: listAC) {
+				URL planeUrl = this.getClass().getResource("Plane/plane.obj");
+				ObjModelImporter planeImporter = new ObjModelImporter();
+				planeImporter.read(planeUrl);
+				
+				MeshView[] planeMeshViews = planeImporter.getImport();
+				/*
+				Group plane = new Group(planeMeshViews);
+				parent.getChildren().add(plane);
+				*/
+			
+				Fx3DGroup planeScale = new Fx3DGroup(planeMeshViews);
+				Fx3DGroup planeOffset = new Fx3DGroup(planeScale);
+				Fx3DGroup plane = new Fx3DGroup(planeOffset);
+				
+				//float lat = 48.866667f;
+				//float lng = 2.333333f;
+				
+				Point3D location = geoCoordTo3dCoord(av.Lat, av.Long);
+				
+				plane.set3DTranslate(location.getX(), location.getY(), location.getZ()+0.016);
+				if(av.TrkH) {
+					plane.set3DRotate(0, -av.Trak+180, 0);
+				}
+				else {
+					plane.set3DRotate(0, av.Trak+180, 0);
+				}
+				plane.set3DScale(0.02);
+				
+				this.listGroupAirCraft.add(plane);
+			}
+			parent.getChildren().addAll(this.listGroupAirCraft);
+		}
+	}
+
 		/*list = FL.avionTotal(dep, arr);
 		Thread.sleep(2000);
 		System.out.println("------------------------------------------------------Searching" + Integer.toString(list.size()));
