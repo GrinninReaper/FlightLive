@@ -6,6 +6,7 @@ Incomplet
 
 ### Contexte
 Projet de Java-IHM-Graphique fait en le 06/18 pour le cours d'IHM
+
 Effectué en binôme
 
 ### Encadrant
